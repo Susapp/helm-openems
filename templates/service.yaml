@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name }}-edge
+  namespace: {{ .Values.release.namespace }}
+  labels:
+    app: {{ .Values.service.name }}-edge
+    role: "websocket"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: felix
+    - port: 8085
+      targetPort: 8085
+      protocol: TCP
+      name: websocket
+  selector:
+    app: {{ .Values.service.name }}-edge
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name }}
+  namespace: {{ .Values.release.namespace }}
+  labels:
+    app: {{ .Values.service.name }}
+    role: "frontend"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: {{ .Values.service.name }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb
+  namespace: {{ .Values.release.namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8086
+      targetPort: 8086
+  selector:
+    app: influxdb

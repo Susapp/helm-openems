@@ -1,0 +1,15 @@
+image:
+  repository: open-ems-edge
+  pullPolicy: IfNotPresent
+  tag: armv8
+
+service:
+  name: openems
+  type: ClusterIP
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 200M
+release:
+  namespace: openems

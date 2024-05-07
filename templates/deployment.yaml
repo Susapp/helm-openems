@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.service.name }}-edge
+  namespace: {{ .Values.release.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.service.name }}-edge
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.service.name }}-edge
+    spec:
+      containers:
+        - name: {{ .Values.service.name }}-edge
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - containerPort: 8080
+          - containerPort: 8085
+          volumeMounts:
+          - name: config
+            mountPath: /var/opt/openems/config
+            readOnly: false
+          - name: data
+            mountPath: /var/opt/openems/data
+            readOnly: false
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: openems-edge-conf-pvc
+      - name: data
+        persistentVolumeClaim:
+          claimName: openems-edge-data-pvc
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Values.release.namespace }}
+  labels:
+    app.kubernetes.io/managed-by: "Helm"
+  name: {{ .Values.service.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.service.name }}
+    spec:
+      containers:
+        - name: {{ .Values.service.name }}-container
+          image: open-ems-ui:armv8
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Values.release.namespace }}
+  name: influxdb
+  labels:
+    app: influxdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      containers:
+        - name: influxdb
+          image: influxdb:latest
+          ports:
+            - containerPort: 8086
+          volumeMounts:
+            - name: influxdb-storage
+              mountPath: /var/lib/influxdb2
+      volumes:
+        - name: influxdb-storage
+          persistentVolumeClaim:
+            claimName: influxdb-pvc
