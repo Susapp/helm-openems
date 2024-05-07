@@ -54,8 +54,8 @@ spec:
     spec:
       containers:
         - name: {{ .Values.service.name }}-container
-          image: open-ems-ui:armv8
-          imagePullPolicy: Never
+          image: docker.io/antonbootstraplabs/openems-ui:armv8
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
 

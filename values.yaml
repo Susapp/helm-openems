@@ -1,5 +1,5 @@
 image:
-  repository: open-ems-edge
+  repository: docker.io/antonbootstraplabs/openems-edge
   pullPolicy: IfNotPresent
   tag: armv8
 
